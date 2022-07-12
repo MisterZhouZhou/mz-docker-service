@@ -1,0 +1,35 @@
+
+version: '3'
+volumes:
+  static: # 数据卷名称
+  db:     # 数据卷名称
+services:
+  app-pm2: 
+    container_name: app-pm2
+    # 构建容器
+    build:
+      context: ./
+      dockerfile: ./backend/Dockerfile
+    ports:
+      - 3000:3000
+    restart: always
+    env_file: .env # 环境变量env，我们写入到了配置文件里，避免密码泄漏
+    volumes:
+      - static:/usr/src/app/static # 使用前面声明的static挂在容器/code/static
+  mysql:
+    image: mysql:5.6
+    env_file: .env # 环境变量env，我们写入到了配置文件里，避免密码泄漏
+    volumes:
+      - db:/var/lib/mysql
+    restart: always
+    ports:
+      - 3306:3306
+  nginx:
+    build:
+      context: ./
+      dockerfile: ./nginx/Dockerfile
+    restart: always
+    volumes:
+      - static:/usr/src/app/static
+    ports:
+      - 8080:80
