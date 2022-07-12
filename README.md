@@ -4,6 +4,8 @@
 # 依赖
 - docker
 - docker-compose
+![swagger](./images/docker.png)
+
 
 # 运行
 ## 开发环境
