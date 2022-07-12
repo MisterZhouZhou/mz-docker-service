@@ -4,7 +4,7 @@
 # 依赖
 - docker
 - docker-compose
-![swagger](./images/docker.png)
+![docker](./images/docker.png)
 
 
 # 运行
