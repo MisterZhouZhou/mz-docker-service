@@ -49,6 +49,46 @@ router.get('/:id', async (req, res) => {
 })
 
 /**
+ * 新增用户
+ * @route POST /user/create
+ * @summary 新增用户
+ * @group user - 用户模块
+ * @param {CreateUser.model} body.body.required - 用户信息
+ * @returns {User.model} 200 - 用户信息
+ * @returns {Error}  default - Unexpected error
+ * @security JWT
+ */
+router.post('/create', async (req, res) => {
+	const { name, age } = req.body
+	if (!name) {
+		res.send(responseHelper.failed(400, '用户名称必须'))
+	}
+	try {
+		// 查询用户信息
+		const createUser = await mySqlHelper.query(
+			`select * from user where name='${name}'`
+		)
+		if (createUser.length > 0) {
+			// 用户存在
+			return res.json(responseHelper.failed(400, '用户已存在'))
+		}
+		// 不存在，新增用户
+		await mySqlHelper.query(`insert into user (name, age) values('${name}', ${age})`)
+		// 返回结果
+		// const resUser = createUser[0]
+    const newUser = await mySqlHelper.query(
+			`select * from user where name='${name}'`
+		);
+		res.json(responseHelper.success(newUser[0]))
+	} catch (err) {
+		// 统一解析错误
+		const errInfo = mySqlHelper.dbErrorHandler(err)
+		const { code, msg } = errInfo
+		res.send(responseHelper.failed(code, msg))
+	}
+})
+
+/**
  * 删除指定用户
  * @route POST /user/delete
  * @summary 删除指定用户
@@ -146,6 +186,12 @@ exports.foo = function() {}
  * @typedef User
  * @property {number} id.required - 用户id - eg: 1
  * @property {string} name - 名称 - eg: mz
+ * @property {number} age - 年龄 - eg: 18
+ */
+
+/**
+ * @typedef CreateUser
+ * @property {string} name.required - 名称 - eg: mz
  * @property {number} age - 年龄 - eg: 18
  */
 
