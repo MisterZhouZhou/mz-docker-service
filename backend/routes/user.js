@@ -89,6 +89,48 @@ router.post('/create', async (req, res) => {
 })
 
 /**
+ * 更新用户信息
+ * @route POST /user/update
+ * @summary 更新用户信息
+ * @group user - 用户模块
+ * @param {User.model} body.body.required - 用户信息
+ * @returns {User.model} 200 - 用户信息
+ * @returns {Error}  default - Unexpected error
+ * @security JWT
+ */
+router.post('/update', async (req, res) => {
+	const { id, name, age } = req.body
+	if (!id) {
+		res.send(responseHelper.failed(400, '用户id必填'))
+	}
+	try {
+		// 查询用户信息
+		const updateUser = await mySqlHelper.query(
+			`select * from user where id=${id}`
+		)
+		if (updateUser.length === 0) {
+			// 用户不存在
+			return res.json(responseHelper.failed(400, '用户不存在'))
+		}
+    // 用户信息
+    const resUser = updateUser[0];
+		// 存在，更新用户信息
+		await mySqlHelper.query(
+			`update user set name='${name}',age=${age} where id=${resUser.id}`
+		);
+		// 返回结果
+    resUser.name = name;
+    resUser.age = age;
+		res.json(responseHelper.success(resUser));
+	} catch (err) {
+		// 统一解析错误
+		const errInfo = mySqlHelper.dbErrorHandler(err)
+		const { code, msg } = errInfo
+		res.send(responseHelper.failed(code, msg))
+	}
+})
+
+/**
  * 删除指定用户
  * @route POST /user/delete
  * @summary 删除指定用户
@@ -161,7 +203,6 @@ exports.foo = function() {}
  * @property {[integer]} code
  */
 
-
 /**
  * This function comment is parsed by doctrine
  * sdfkjsldfkj
@@ -181,18 +222,21 @@ exports.foo = function() {}
  * @headers {string} 200.X-Expires-After - 	date in UTC when token expires
  * @security JWT
  */
+router.post('/', (req, res) => {
+  console.log(req.body, req.headers);
+})
 
 /**
  * @typedef User
- * @property {number} id.required - 用户id - eg: 1
+ * @property {integer} id.required - 用户id - eg: 1
  * @property {string} name - 名称 - eg: mz
- * @property {number} age - 年龄 - eg: 18
+ * @property {integer} age - 年龄 - eg: 18
  */
 
 /**
  * @typedef CreateUser
  * @property {string} name.required - 名称 - eg: mz
- * @property {number} age - 年龄 - eg: 18
+ * @property {integer} age - 年龄 - eg: 18
  */
 
 
