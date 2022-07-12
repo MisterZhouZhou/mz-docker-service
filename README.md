@@ -8,6 +8,7 @@
 # 运行
 ## 开发环境
 1、先到backend目录下执行`npm install`安装依赖
+
 2、运行容器
 ```
   docker-compose up
